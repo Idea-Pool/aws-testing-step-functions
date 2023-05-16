@@ -6,6 +6,21 @@ A repository for implementing example AWS Step Functions and their automated tes
 Currently the code is not configurable.
 
 ### How to build and deploy
-1. `npm run build`
-1. Zip the build directory content. It should contain an index.js and a map file.
-1. An example command to deploy the code as an AWS Lambda: `aws lambda create-function --function-name image-grayscaler --role arn:aws:iam::356926350661:role/image-grayscaler-iam --runtime nodejs18.x --handler index.handler --memory-size 512 --zip-file fileb://index.zip` - The --role parameter should be an IAM role which gives permission to read/write to the `image-transform-example` s3 bucket.
+You can build the project by running `npm run build`.  
+For convenience deploy and destroy scripts were created.  
+- Make the shell scripts executable: `chmod +x deploy.sh` and `chmod +x destroy.sh`.
+- To deploy the application run `./deploy.sh`.
+    - Deploys a stack which creates: IAM Role to access all S3 buckets, 2 S3 buckets, a lambda with "Hello World".
+    - Uploads `apple.png` to the input s3 bucket.
+    - Builds the code using `npm run build`.
+    - Zips the contents of the build directory into `index.zip`.
+    - Updates the Lambda function with the newly built code.
+- To destroy the stack run `./destroy.sh`.
+    - Deletes all files from the input and output s3 buckets.
+    - Destroys the stack created by `./deploy.sh`.
+
+
+## To improve
+- Make the lambda function configurable without hardcoded values.
+- Restrict the created IAM role to only the created buckets.
+- Think about ways to give more complexity to the lambda or create 2 lambdas, as we aim to create a state machine in the end.

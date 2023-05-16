@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "An example CF template to work with the image processing lambda and step function"
+Resources:
+  IAMLambdaS3AccessRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: LambdaS3AccessRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: LambdaS3FullAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: "*"
+
+  ImageTransformDemoLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: ImageTransformDemoLambda
+      Handler: "index.handler"
+      Role: !GetAtt IAMLambdaS3AccessRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = (event, context, callback) => {
+              callback(null, "Hello World!");
+          };
+      Runtime: "nodejs18.x"
+      Timeout: "30"
+  
+  ImageInBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: imageinbucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+
+  ImageOutBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: imageoutbucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
