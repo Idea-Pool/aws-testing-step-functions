@@ -23,10 +23,10 @@ Resources:
                   - "cloudformation:DescribeStackResource"
                 Resource: "*"
 
-  ImageTransformDemoLambda:
+  GrayscalerLambda:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: ImageTransformDemoLambda
+      FunctionName: GrayscalerLambda
       Handler: "index.handler"
       Role: !GetAtt IAMLambdaS3AccessRole.Arn
       Code:

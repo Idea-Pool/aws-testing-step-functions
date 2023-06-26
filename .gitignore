@@ -1,6 +1,6 @@
 .DS_STORE
 *.zip
-/build
+build
 # Logs
 logs
 *.log
@@ -131,3 +131,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+.idea
