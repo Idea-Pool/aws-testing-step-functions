@@ -18,7 +18,7 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action: 
+                Action:
                   - "s3:*"
                   - "cloudformation:DescribeStackResource"
                 Resource: "*"
@@ -42,9 +42,13 @@ Resources:
                 Action:
                   - "rekognition:*"
                 Resource: "*"
+
   GrayscalerLambda:
     Type: "AWS::Lambda::Function"
     Properties:
+      Environment:
+        Variables:
+          OUT_BUCKET: !Ref ImageOutBucket
       FunctionName: GrayscalerLambda
       Handler: "index.handler"
       Role: !GetAtt IAMLambdaS3AccessRole.Arn
@@ -55,6 +59,7 @@ Resources:
           };
       Runtime: "nodejs18.x"
       Timeout: "30"
+
   NSFWCheckerLambda:
     Type: "AWS::Lambda::Function"
     Properties:
