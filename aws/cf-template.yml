@@ -22,7 +22,26 @@ Resources:
                   - "s3:*"
                   - "cloudformation:DescribeStackResource"
                 Resource: "*"
-
+  IAMLambdaRekognitionAccessRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: LambdaRekognitionAccessRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: LambdaRekognitionFullAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "rekognition:*"
+                Resource: "*"
   GrayscalerLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -36,6 +55,20 @@ Resources:
           };
       Runtime: "nodejs18.x"
       Timeout: "30"
+  NSFWCheckerLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: NSFWCheckerLambda
+      Handler: "index.handler"
+      Role: !GetAtt IAMLambdaRekognitionAccessRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = (event, context, callback) => {
+              callback(null, "Hello World!");
+          };
+      Runtime: "nodejs18.x"
+      Timeout: "60"
+      MemorySize: 512
   
   ImageInBucket:
     Type: "AWS::S3::Bucket"
