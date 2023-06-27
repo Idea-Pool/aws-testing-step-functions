@@ -6,8 +6,14 @@ inBucketName=`aws cloudformation describe-stack-resource --stack-name image-proc
 
 aws s3 cp apple.png s3://$inBucketName/apple.png
 
-npm run build
+npm run --prefix grayscaler build
 
-zip -r9q -j index.zip ./build/
+zip -r9q -j ./grayscaler/index.zip ./grayscaler/build/
 
-aws lambda update-function-code --function-name ImageTransformDemoLambda --zip-file fileb://index.zip --publish --no-cli-pager
+aws lambda update-function-code --function-name GrayscalerLambda --zip-file fileb://grayscaler/index.zip --publish --no-cli-pager
+
+npm run --prefix nsfwcheck build
+
+zip -r9q -j ./nsfwcheck/index.zip ./nsfwcheck/build/
+
+aws lambda update-function-code --function-name NSFWCheckerLambda --zip-file fileb://nsfwcheck/index.zip --publish --no-cli-pager
