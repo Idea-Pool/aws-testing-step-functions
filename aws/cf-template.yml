@@ -62,6 +62,44 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:log-group:/aws/lambda/NSFWCheckerLambda:*
+
+  ImageProcessingEventRuleRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: EventBridgeExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: states:startExecution
+                Resource: !GetAtt ImageProcessingStateMachine.Arn
+
+  ImageProcessingStateMachineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StepFunctionExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: "*"
   ######################## LOGGING ########################
   GrayscalerLogGroup:
     Type: 'AWS::Logs::LogGroup'
@@ -134,25 +172,7 @@ Resources:
         Rules:
           - ObjectOwnership: ObjectWriter
 
-  MyEventRuleRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: EventBridgeExecutionPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: states:startExecution
-                Resource: !GetAtt MyStateMachine.Arn
-
+  ######################## Event Bridge ########################
   ImageProcessingEventBridgeRule:
     Type: "AWS::Events::Rule"
     Properties:
@@ -167,33 +187,15 @@ Resources:
               - !Ref ImageInBucket
       State: ENABLED
       Targets:
-        - Arn: !GetAtt MyStateMachine.Arn
+        - Arn: !GetAtt ImageProcessingStateMachine.Arn
           Id: "InvokeStateMachine"
-          RoleArn: !GetAtt MyEventRuleRole.Arn
+          RoleArn: !GetAtt ImageProcessingEventRuleRole.Arn
 
-  MyStateMachineRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: states.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: StepFunctionExecutionPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: lambda:InvokeFunction
-                Resource: "*"
-
-  MyStateMachine:
+  ######################## State Machine ########################
+  ImageProcessingStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
-      RoleArn: !GetAtt MyStateMachineRole.Arn
+      RoleArn: !GetAtt ImageProcessingStateMachineRole.Arn
       DefinitionString:
         !Sub |
         {
