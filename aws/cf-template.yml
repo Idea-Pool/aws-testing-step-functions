@@ -1,10 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "An example CF template to work with the image processing lambda and step function"
 Resources:
-  IAMLambdaS3AccessRole:
+  ######################## IAM ROLES ########################
+  LambdaGrayscalerAccessRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: LambdaS3AccessRole
+      RoleName: LambdaGrayscalerAccessRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -20,8 +21,17 @@ Resources:
               - Effect: Allow
                 Action:
                   - "s3:*"
-                  - "cloudformation:DescribeStackResource"
                 Resource: "*"
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/GrayscalerLambda:*
+
   LambdaNSFWCheckAccessRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -43,7 +53,28 @@ Resources:
                   - "rekognition:*"
                   - "s3:*"
                 Resource: "*"
+        - PolicyName: LoggingPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:log-group:/aws/lambda/NSFWCheckerLambda:*
+  ######################## LOGGING ########################
+  GrayscalerLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: /aws/lambda/GrayscalerLambda
+      RetentionInDays: 30
 
+  NsfwcheckLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: /aws/lambda/NSFWCheckerLambda
+      RetentionInDays: 30
+  ######################## LAMBDAS ########################
   GrayscalerLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -52,7 +83,7 @@ Resources:
           OUT_BUCKET: !Ref ImageOutBucket
       FunctionName: GrayscalerLambda
       Handler: "index.handler"
-      Role: !GetAtt IAMLambdaS3AccessRole.Arn
+      Role: !GetAtt LambdaGrayscalerAccessRole.Arn
       Code:
         ZipFile: |
           exports.handler = (event, context, callback) => {
@@ -60,6 +91,8 @@ Resources:
           };
       Runtime: "nodejs18.x"
       Timeout: "30"
+      TracingConfig:
+        Mode: Active
 
   NSFWCheckerLambda:
     Type: "AWS::Lambda::Function"
@@ -73,9 +106,10 @@ Resources:
               callback(null, "Hello World!");
           };
       Runtime: "nodejs18.x"
-      Timeout: "60"
-      MemorySize: 512
-  
+      Timeout: "30"
+      TracingConfig:
+        Mode: Active
+  ######################## S3 Buckets ########################
   ImageInBucket:
     Type: "AWS::S3::Bucket"
     Properties:
