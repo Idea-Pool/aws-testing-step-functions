@@ -22,10 +22,10 @@ Resources:
                   - "s3:*"
                   - "cloudformation:DescribeStackResource"
                 Resource: "*"
-  IAMLambdaRekognitionAccessRole:
+  LambdaNSFWCheckAccessRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: LambdaRekognitionAccessRole
+      RoleName: LambdaNSFWCheckAccessRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -34,13 +34,14 @@ Resources:
               Service: lambda.amazonaws.com
             Action: "sts:AssumeRole"
       Policies:
-        - PolicyName: LambdaRekognitionFullAccessPolicy
+        - PolicyName: LambdaNSFWCheckAccessToRekognitionAndS3Policy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - "rekognition:*"
+                  - "s3:*"
                 Resource: "*"
 
   GrayscalerLambda:
@@ -65,7 +66,7 @@ Resources:
     Properties:
       FunctionName: NSFWCheckerLambda
       Handler: "index.handler"
-      Role: !GetAtt IAMLambdaRekognitionAccessRole.Arn
+      Role: !GetAtt LambdaNSFWCheckAccessRole.Arn
       Code:
         ZipFile: |
           exports.handler = (event, context, callback) => {
