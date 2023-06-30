@@ -31,7 +31,6 @@ The output is a JSON containing if the picture is NSFW and the bucket name and k
 ## To improve
 - Restrict the created IAM role to only the created buckets.
 - Introduce step functions to the CF Stack.
-- Improve the S3 bucket creation by enabling AWS EventBridge integration by default.
 - Add AWS EventBridge to the CF Stack.
 - Add AWS SNS to the stack - the plan is to publish a message here when a picture is deemed NSFW.
 

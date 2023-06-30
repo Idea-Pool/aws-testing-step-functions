@@ -113,6 +113,9 @@ Resources:
   ImageInBucket:
     Type: "AWS::S3::Bucket"
     Properties:
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
       OwnershipControls:
@@ -122,6 +125,9 @@ Resources:
   ImageOutBucket:
     Type: "AWS::S3::Bucket"
     Properties:
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
       OwnershipControls:
