@@ -100,6 +100,22 @@ Resources:
               - Effect: Allow
                 Action: lambda:InvokeFunction
                 Resource: "*"
+        - PolicyName: LambdaS3FullAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:*"
+                Resource: "*"
+        - PolicyName: SNSPublishAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref NSFWImageSNS
   ######################## LOGGING ########################
   GrayscalerLogGroup:
     Type: 'AWS::Logs::LogGroup'
@@ -198,13 +214,11 @@ Resources:
       RoleArn: !GetAtt ImageProcessingStateMachineRole.Arn
       DefinitionString:
         !Sub |
-        {
-          "StartAt": "InvokeLambda",
-          "States": {
-            "InvokeLambda": {
-              "Type": "Task",
-              "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:NSFWCheckerLambda",
-              "End": true
-            }
-          }
-        }
+        STATE_FUNCTION_ASL_JSON
+
+  ######################## SNS ########################
+  NSFWImageSNS:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "SNS Topic to get notifications on NSFW Images encountered by the state machine"
+      TopicName: NSFWImageSNS

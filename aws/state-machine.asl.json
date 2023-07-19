@@ -1,0 +1,45 @@
+{
+  "StartAt": "CheckNSFW",
+  "States": {
+    "CheckNSFW": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:NSFWCheckerLambda",
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.isNSFW",
+          "BooleanEquals": true,
+          "Next": "SNS Publish"
+        }
+      ],
+      "Default": "ProcessImage"
+    },
+    "SNS Publish": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "Message.$": "$",
+        "TopicArn": "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:NSFWImageSNS"
+      },
+      "Next": "DeleteObject",
+      "ResultPath": null
+    },
+    "DeleteObject": {
+      "Type": "Task",
+      "End": true,
+      "Parameters": {
+        "Bucket.$": "$.bucket",
+        "Key.$": "$.file"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:s3:deleteObject"
+    },
+    "ProcessImage": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:GrayscalerLambda",
+      "End": true
+    }
+  }
+}
