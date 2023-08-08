@@ -30,8 +30,6 @@ The output is a JSON containing if the picture is NSFW and the bucket name and k
 
 ## To improve
 - Restrict the created IAM role to only the created buckets.
-- Introduce step functions to the CF Stack.
-- Add AWS SNS to the stack - the plan is to publish a message here when a picture is deemed NSFW.
 
-The general aim is to have a stepfunction similar to this:  
-![A picture of the planned stepfunction](docs/sf-plan.png)
+The implemented Step Function looks like the below diagram  
+![A picture of the stepfunction](docs/sf.png)
