@@ -1,10 +1,8 @@
 set -e
 
-stateDefinition=$(<aws/state-machine.asl.json)
+stateDefinition=$(cat aws/state-machine.asl.json | tr -d '\n')
 
-noNewLineStateDefinition=$(echo "$stateDefinition" | tr -d '\n')
-
-sed -e "s/STATE_FUNCTION_ASL_JSON/$(echo $noNewLineStateDefinition)/" aws/cf-template.yml > aws/cf-template-tmp.yml
+sed -e "s/STATE_FUNCTION_ASL_JSON/$stateDefinition/" aws/cf-template.yml > aws/cf-template-tmp.yml
 
 aws cloudformation deploy --template-file aws/cf-template-tmp.yml --stack-name image-processing-demo --capabilities CAPABILITY_NAMED_IAM
 
