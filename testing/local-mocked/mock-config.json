@@ -1,0 +1,46 @@
+{
+  "StateMachines": {
+    "GrayscalerStepFunction": {
+      "TestCases": {
+        "HappyPath": {
+          "CheckNSFW": "CheckNSFWSuccess",
+          "SNS Publish": "SNSPublishSuccess",
+          "DeleteObject": "DeleteObjectSuccess",
+          "ProcessImage": "ProcessImageSuccess"
+        }
+      }
+    }
+  },
+  "MockedResponses": {
+    "CheckNSFWSuccess": {
+      "0": {
+        "Return": {
+          "isNSFW": false,
+          "bucket": "testBucket",
+          "file": "testfile.png"
+        }
+      }
+    },
+    "SNSPublishSuccess": {
+      "0": {
+        "Return": {
+          "StatusCode": 200
+        }
+      }
+    },
+    "DeleteObjectSuccess": {
+      "0": {
+        "Return": {
+          "StatusCode": 200
+        }
+      }
+    },
+    "ProcessImageSuccess": {
+      "0": {
+        "Return": {
+          "StatusCode": 200
+        }
+      }
+    }
+  }
+}
