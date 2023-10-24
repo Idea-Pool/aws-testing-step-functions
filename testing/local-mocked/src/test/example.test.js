@@ -29,7 +29,11 @@ describe('GrayscalerStepFunction', () => {
         sfDefinition = sfDefinitionTemplate
             .replaceAll("${AWS::Region}", "us-east-1")
             .replaceAll("${AWS::AccountId}", "123456789012");
-        sfnClient = new SFNClient({endpoint: `http://localhost:8083`, region: 'us-east-1'})
+        sfnClient = new SFNClient({
+            endpoint: `http://localhost:8083`,
+            region: 'us-east-1',
+            credentials: {accessKeyId: 'mocked', secretAccessKey: 'mocked'}
+        })
     }, 120000)
 
     afterAll(async () => {
