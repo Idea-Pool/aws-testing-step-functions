@@ -1,4 +1,4 @@
-const {GenericContainer} = require("testcontainers");
+const {GenericContainer, Wait} = require("testcontainers");
 const {
     SFNClient,
     CreateStateMachineCommand,
@@ -16,6 +16,7 @@ describe('GrayscalerStepFunction', () => {
 
     beforeAll(async () => {
         sfnContainer = await new GenericContainer("amazon/aws-stepfunctions-local")
+            .withWaitStrategy(Wait.forListeningPorts())
             .withExposedPorts({container: 8083, host: 8083})
             .withName("sf-local")
             .withBindMounts([{
