@@ -1,0 +1,21 @@
+name: Run local-mocked tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: testing/local-mocked/package-lock.json
+      - name: Run npm install
+        working-directory: testing/local-mocked
+        run: npm install
+      - name: Run local-mocked tests
+        working-directory: testing/local-mocked
+        run: npm test
