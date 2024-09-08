@@ -14,7 +14,7 @@
     "testcontainers": "^10.2.1"
   },
   "dependencies": {
-    "@aws-sdk/client-sfn": "^3.431.0",
+    "@aws-sdk/client-sfn": "^3.645.0",
     "@jest/globals": "^29.7.0",
     "wait-for-expect": "^3.0.2"
   }
